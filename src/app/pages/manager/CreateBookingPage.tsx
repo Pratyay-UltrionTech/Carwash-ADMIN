@@ -22,8 +22,8 @@ import {
   totalMinutesForServiceAndAddons,
 } from '../../lib/branchSlotSchedule';
 import { scheduleSliceFromBranchData } from '../../lib/configureSlotReschedule';
-import { todayLocalISO, currentHHMM, getUserPortalLoginUrl } from '../../lib/managerPortalUtils';
-import { branchCheckoutTotalCents } from '../../lib/managerCheckoutPricing';
+import { todayLocalISO, currentHHMM } from '../../lib/managerPortalUtils';
+import { branchCheckoutTotalCents, type CheckoutDiscountType } from '../../lib/managerCheckoutPricing';
 import { CalendarPopover } from '../../components/manager/edit-branch-booking/CalendarPopover';
 import { SlotSelector } from '../../components/manager/edit-branch-booking/SlotSelector';
 import { BookingForm } from '../../components/manager/create-booking/BookingForm';
@@ -81,6 +81,8 @@ export default function CreateBookingPage() {
   const [notes, setNotes] = useState('');
   const [selectedAddonIds, setSelectedAddonIds] = useState<string[]>([]);
   const [tipDollars, setTipDollars] = useState('');
+  const [discountType, setDiscountType] = useState<CheckoutDiscountType>('flat');
+  const [discountValue, setDiscountValue] = useState('');
   const [pickedBaySlot, setPickedBaySlot] = useState<{
     startTime: string;
     endTime: string;
@@ -108,10 +110,21 @@ export default function CreateBookingPage() {
   }, [data, vehicleType]);
   const addonChoices = useMemo(() => (data ? branchAddonChoices(data) : []), [data]);
 
-  const pricing = useMemo(
-    () => (data ? branchCheckoutTotalCents(data, catalogServiceId || null, selectedAddonIds, tipCents) : null),
-    [data, catalogServiceId, selectedAddonIds, tipCents]
-  );
+  const pricing = useMemo(() => {
+    if (!data) return null;
+    const discountInput = parseFloat(discountValue);
+    const discount =
+      Number.isFinite(discountInput) && discountInput > 0
+        ? {
+            type: discountType,
+            value:
+              discountType === 'percent'
+                ? Math.min(100, Math.max(0, discountInput))
+                : Math.max(0, discountInput),
+          }
+        : null;
+    return branchCheckoutTotalCents(data, catalogServiceId || null, selectedAddonIds, tipCents, discount);
+  }, [data, catalogServiceId, selectedAddonIds, tipCents, discountType, discountValue]);
 
   const washersBusyInPickedSlot = useMemo(() => {
     if (!data || !pickedBaySlot) return new Set<string>();
@@ -369,7 +382,13 @@ export default function CreateBookingPage() {
     const phoneValue = phone.trim();
     const emailValue = email.trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (lookupStatus !== 'existing' || !customerId) {
+    if (lookupStatus === 'idle' || lookupStatus === 'loading') {
+      return 'Check the customer phone or email before creating the booking.';
+    }
+    if (lookupStatus === 'existing' && !customerId) {
+      return 'Find a registered customer account before creating the booking.';
+    }
+    if (lookupStatus === 'guest') {
       return 'Find a registered customer account before creating the booking.';
     }
     if (
@@ -442,7 +461,7 @@ export default function CreateBookingPage() {
       notes: notes.trim(),
       managerNotes: notes.trim(),
       tipCents,
-      serviceChargedCents: pricing ? Math.round(pricing.subtotal * 100) : undefined,
+      serviceChargedCents: pricing ? pricing.chargedCents : undefined,
       paymentMethod: paymentMethod || 'pay_after',
       createdAt: new Date().toISOString(),
     };
@@ -468,6 +487,8 @@ export default function CreateBookingPage() {
     setNotes('');
     setSelectedAddonIds([]);
     setTipDollars('');
+    setDiscountType('flat');
+    setDiscountValue('');
     setPickedBaySlot(null);
     setWasherId('');
     setPaymentMethod('pay_after');
@@ -621,18 +642,11 @@ export default function CreateBookingPage() {
                 </div>
               )}
               {lookupStatus === 'new' && (
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center rounded-full bg-amber-500 px-2.5 py-0.5 text-[11px] font-semibold text-white">User not found</span>
-                    <span className="text-xs text-amber-800">A registered account is required before a booking can be created.</span>
-                  </div>
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => window.open(getUserPortalLoginUrl(), '_blank', 'noopener,noreferrer')}
-                  >
-                    Create account
-                  </Button>
+                <div className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
+                  <span className="inline-flex items-center rounded-full bg-amber-500 px-2.5 py-0.5 text-[11px] font-semibold text-white">User not found</span>
+                  <span className="text-xs text-amber-800">
+                    No account yet — fill in the details below. An account will be created automatically with this booking so they can sign in later with OTP.
+                  </span>
                 </div>
               )}
             </div>
@@ -941,21 +955,51 @@ export default function CreateBookingPage() {
               )}
             </div>
 
-            {/* ── Tip ───────────────────────────────────────────── */}
-            <div className="mt-6 space-y-2 border-t border-slate-100 pt-6">
-              <Label htmlFor="cb-tip" className="text-base">Tip (optional)</Label>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-500 font-medium">$</span>
-                <input
-                  id="cb-tip"
-                  type="number"
-                  min="0"
-                  step="1"
-                  placeholder="0.00"
-                  value={tipDollars}
-                  onChange={(e) => setTipDollars(e.target.value)}
-                  className="h-10 w-32 rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/25"
-                />
+            {/* ── Tip & Discount ────────────────────────────────── */}
+            <div className="mt-6 space-y-4 border-t border-slate-100 pt-6">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="cb-tip" className="text-base">Tip (optional)</Label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-slate-500 font-medium">$</span>
+                    <input
+                      id="cb-tip"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={tipDollars}
+                      onChange={(e) => setTipDollars(e.target.value)}
+                      className="h-10 w-full max-w-[10rem] rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/25"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="cb-discount" className="text-base">Discount (optional)</Label>
+                  <div className="flex items-center gap-2">
+                    <select
+                      aria-label="Discount type"
+                      value={discountType}
+                      onChange={(e) => setDiscountType(e.target.value as CheckoutDiscountType)}
+                      className="h-10 shrink-0 rounded-lg border border-slate-200 bg-white px-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/25"
+                    >
+                      <option value="flat">Flat ($)</option>
+                      <option value="percent">Percent (%)</option>
+                    </select>
+                    <input
+                      id="cb-discount"
+                      type="number"
+                      min="0"
+                      max={discountType === 'percent' ? 100 : undefined}
+                      step={discountType === 'percent' ? '1' : '0.01'}
+                      placeholder={discountType === 'percent' ? '0' : '0.00'}
+                      value={discountValue}
+                      onChange={(e) => setDiscountValue(e.target.value)}
+                      className="h-10 w-full max-w-[8rem] rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/25"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -984,6 +1028,17 @@ export default function CreateBookingPage() {
                     <span>Add-ons (inc GST)</span>
                     <span>${pricing.addonsTotal.toFixed(2)}</span>
                   </div>
+                  {pricing.discountCents > 0 ? (
+                    <div className="flex justify-between text-sm text-emerald-700 mb-1">
+                      <span>
+                        Discount
+                        {discountType === 'percent' && parseFloat(discountValue) > 0
+                          ? ` (${Math.min(100, parseFloat(discountValue))}%)`
+                          : ''}
+                      </span>
+                      <span>−${(pricing.discountCents / 100).toFixed(2)}</span>
+                    </div>
+                  ) : null}
                   <div className="flex justify-between text-sm text-slate-600 mb-1">
                     <span>Tip</span>
                     <span>${(tipCents / 100).toFixed(2)}</span>
@@ -1002,7 +1057,15 @@ export default function CreateBookingPage() {
               variant="default" 
               className="min-w-[14rem] h-12 rounded-xl font-bold text-base shadow-lg shadow-indigo-200 transition-all hover:translate-y-[-1px] active:translate-y-[0px] disabled:opacity-70 disabled:cursor-not-allowed" 
               onClick={onCreateBooking}
-              disabled={isProcessing || isCreatingBooking || !paymentMethod || lookupStatus !== 'existing' || !customerId}
+              disabled={
+                isProcessing ||
+                isCreatingBooking ||
+                !paymentMethod ||
+                lookupStatus === 'idle' ||
+                lookupStatus === 'loading' ||
+                lookupStatus === 'guest' ||
+                (lookupStatus === 'existing' && !customerId)
+              }
             >
               {isProcessing ? (
                 <>
