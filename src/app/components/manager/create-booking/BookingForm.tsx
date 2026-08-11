@@ -73,6 +73,8 @@ type Props = {
   hidePhone?: boolean;
   /** Hide the email field (caller renders it separately in a lookup section). */
   hideEmail?: boolean;
+  /** When true, email is not required (manager walk-in bookings). */
+  emailOptional?: boolean;
   /** Hide the customer name field (caller renders it separately). */
   hideCustomerName?: boolean;
   /** Hide the service selector row (caller renders a rich service picker). */
@@ -115,6 +117,7 @@ export function BookingForm({
   hideVehicleDetails = false,
   hidePhone = false,
   hideEmail = false,
+  emailOptional = false,
   hideCustomerName = false,
   hideService = false,
   addressOptional = false,
@@ -178,7 +181,7 @@ export function BookingForm({
         {(!hideEmail || !hideVehicleDetails) && <div className="grid gap-4 sm:grid-cols-2">
           {!hideEmail && (
             <div className="grid gap-2">
-              <Label htmlFor="cb-email">Email *</Label>
+              <Label htmlFor="cb-email">{emailOptional ? 'Email (optional)' : 'Email *'}</Label>
               <Input
                 id="cb-email"
                 type="email"

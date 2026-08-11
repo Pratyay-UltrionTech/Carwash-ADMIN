@@ -399,8 +399,7 @@ export default function CreateBookingPage() {
     }
     if (!name || !slotDate) return 'Enter customer name and date.';
     if (phone.length !== 9) return 'Enter exactly 9 digits for the phone number.';
-    if (!emailValue) return 'Enter email address.';
-    if (!emailRegex.test(emailValue)) return 'Enter a valid email address.';
+    if (emailValue && !emailRegex.test(emailValue)) return 'Enter a valid email address.';
     if (daySlots.length === 0) return 'No slots are available for this branch configuration.';
     if (!washerId || !washers.some((w) => w.id === washerId)) return 'Select a washer.';
     if (!pickedBaySlot) return 'Pick an available bay cell for the selected date.';
@@ -603,7 +602,7 @@ export default function CreateBookingPage() {
                   </div>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="cb-email-lookup">Email</Label>
+                  <Label htmlFor="cb-email-lookup">Email (optional)</Label>
                   <input
                     id="cb-email-lookup"
                     type="email"
@@ -826,6 +825,7 @@ export default function CreateBookingPage() {
               addressOptional
               hidePhone
               hideEmail
+              emailOptional
               hideCustomerName
               hideVehicleDetails
               hideAssignee

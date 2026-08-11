@@ -369,8 +369,8 @@ export default function MobileCreateBookingPage() {
     }
     setAddressErrors({});
     if (phone.length !== 9) return { error: 'Enter exactly 9 digits for the phone number.' };
-    if (!email) return { error: 'Enter email address.' };
-    if (!emailRegex.test(email)) return { error: 'Enter a valid email address.' };
+    const emailValue = email.trim();
+    if (emailValue && !emailRegex.test(emailValue)) return { error: 'Enter a valid email address.' };
     if (!catalogServiceId) return { error: 'Select a service for this vehicle.' };
     if (!slotKey || slotKey === '|') return { error: 'Select a time slot and driver on the calendar.' };
     if (assignedStaffId === 'none') return { error: 'Select a driver on the calendar or from Driver Assignment.' };
@@ -668,7 +668,7 @@ export default function MobileCreateBookingPage() {
                   </div>
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col gap-2">
-                  <Label htmlFor="mcb-email-lookup">Email</Label>
+                  <Label htmlFor="mcb-email-lookup">Email (optional)</Label>
                   <input
                     id="mcb-email-lookup"
                     type="email"
@@ -847,7 +847,7 @@ export default function MobileCreateBookingPage() {
               savedAddresses={isGuestCustomer ? [] : savedAddresses}
               addressErrors={addressErrors}
               formError=""
-              hidePhone hideEmail hideCustomerName hideVehicleDetails hideAssignee hideNotes hideService
+              hidePhone hideEmail emailOptional hideCustomerName hideVehicleDetails hideAssignee hideNotes hideService
             />
 
             {/* ── 4. Service picker ── */}
