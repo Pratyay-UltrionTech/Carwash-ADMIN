@@ -501,7 +501,7 @@ export default function CustomersPage() {
 
       {/* Table */}
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-        <table className="w-full min-w-[880px] table-fixed text-sm">
+        <table className="w-full min-w-[980px] table-fixed text-sm">
           <colgroup>
             <col className="w-[5.5rem]" />
             <col className="w-[11rem]" />
@@ -510,6 +510,7 @@ export default function CustomersPage() {
             <col />
             <col className="w-[5.25rem]" />
             <col className="w-[6.75rem]" />
+            <col className="w-[6.5rem]" />
             <col className="w-[5.5rem]" />
           </colgroup>
           <thead>
@@ -521,18 +522,19 @@ export default function CustomersPage() {
               <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 hidden lg:table-cell">Vehicles</th>
               <th className="px-3 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500">Bookings</th>
               <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 hidden lg:table-cell whitespace-nowrap">Last booking</th>
+              <th className="px-3 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500 leading-tight">Free wash eligible</th>
               <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-500">History</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {loading && (
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-sm text-slate-400">Loading…</td>
+                <td colSpan={9} className="px-4 py-12 text-center text-sm text-slate-400">Loading…</td>
               </tr>
             )}
             {!loading && customers.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-sm text-slate-400">
+                <td colSpan={9} className="px-4 py-12 text-center text-sm text-slate-400">
                   {search || typeFilter !== 'all' ? 'No customers match your filters.' : 'No customers yet.'}
                 </td>
               </tr>
@@ -624,6 +626,20 @@ export default function CustomersPage() {
                 {/* Last booking */}
                 <td className="px-3 py-2.5 text-[12px] text-slate-500 hidden lg:table-cell align-middle whitespace-nowrap tabular-nums">
                   {fmtDateTable(c.last_booking_date)}
+                </td>
+
+                {/* Free wash eligible */}
+                <td className="px-3 py-2.5 text-center align-middle">
+                  <span
+                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
+                      c.free_wash_eligible
+                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                        : 'border-slate-200 bg-slate-50 text-slate-500'
+                    }`}
+                    title={c.free_wash_eligible ? 'Eligible for a free wash reward' : 'Not eligible for a free wash reward'}
+                  >
+                    {c.free_wash_eligible ? 'Yes' : 'No'}
+                  </span>
                 </td>
 
                 {/* Action */}

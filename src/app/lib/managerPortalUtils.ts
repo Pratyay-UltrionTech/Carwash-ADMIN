@@ -37,6 +37,34 @@ export function canManagerPortalEditBookingJob(job: { slotDate: string; status: 
   return job.status !== 'completed' && job.status !== 'cancelled';
 }
 
+/** Map catalog service id → whether that service counts toward loyalty eligibility. */
+export function loyaltyEligibleByServiceIdFromBlocks(
+  blocks: { services?: { id: string; eligibleForLoyaltyPoints?: boolean }[] }[],
+): Map<string, boolean> {
+  const map = new Map<string, boolean>();
+  for (const block of blocks) {
+    for (const svc of block.services ?? []) {
+      if (svc.id) map.set(svc.id, svc.eligibleForLoyaltyPoints === true);
+    }
+  }
+  return map;
+}
+
+/**
+ * A booking counts toward free-wash eligibility when it belongs to a registered
+ * customer, is not cancelled, and the primary service is loyalty-eligible.
+ */
+export function bookingCountsTowardEligibility(
+  job: { serviceId?: string | null; customerId?: string | null; status: string },
+  loyaltyEligibleByServiceId: ReadonlyMap<string, boolean>,
+): boolean {
+  if (!job.customerId) return false;
+  if (job.status === 'cancelled' || job.status === 'rejected' || job.status === 'failed') return false;
+  const sid = job.serviceId;
+  if (!sid) return false;
+  return loyaltyEligibleByServiceId.get(sid) === true;
+}
+
 export function bookingScheduleOrStaffChanged(
   prev: {
     slotDate: string;

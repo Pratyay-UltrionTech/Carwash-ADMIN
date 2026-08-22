@@ -9,7 +9,12 @@ import {
 } from '../../lib/branchApi';
 import { useManagerSession } from '../../hooks/useManagerSession';
 import type { BookingJobStatus, BranchBookingJob } from '../../lib/branchStore';
-import { canManagerPortalEditBookingJob, todayLocalISO } from '../../lib/managerPortalUtils';
+import {
+  bookingCountsTowardEligibility,
+  canManagerPortalEditBookingJob,
+  loyaltyEligibleByServiceIdFromBlocks,
+  todayLocalISO,
+} from '../../lib/managerPortalUtils';
 import { EditBranchBookingDialog } from '../../components/manager/EditBranchBookingDialog';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -152,6 +157,11 @@ export default function ViewBookingsPage() {
   const washersById = useMemo(
     () => Object.fromEntries((data?.washers ?? []).map((w) => [w.id, w.name || w.loginId])),
     [data?.washers]
+  );
+
+  const loyaltyEligibleByServiceId = useMemo(
+    () => loyaltyEligibleByServiceIdFromBlocks(data?.vehicleServices ?? []),
+    [data?.vehicleServices],
   );
 
   const filtered = useMemo(() => {
@@ -353,6 +363,7 @@ export default function ViewBookingsPage() {
                     <TableHead className="h-11 w-[120px] px-3 py-3">Customer</TableHead>
                     <TableHead className="h-11 w-[120px] px-3 py-3">Date & time</TableHead>
                     <TableHead className="h-11 w-[140px] px-3 py-3 pr-0">Service</TableHead>
+                    <TableHead className="h-11 w-[7.5rem] px-2 py-3 leading-tight">Counted towards eligibility</TableHead>
                     <TableHead className="h-11 w-[125px] px-0 py-3">Phone</TableHead>
                     <TableHead className="h-11 w-[100px] px-3 py-3">Booking date</TableHead>
                     <TableHead className="h-11 w-[120px] px-3 py-3 text-center">Status</TableHead>
@@ -400,6 +411,24 @@ export default function ViewBookingsPage() {
                           .map((p) => p.trim())
                           .filter(Boolean)
                           .join(' + ')}
+                      </TableCell>
+                      <TableCell className="px-2 py-2 text-center">
+                        {(() => {
+                          const counts = bookingCountsTowardEligibility(j, loyaltyEligibleByServiceId);
+                          return (
+                            <span
+                              className={cn(
+                                'inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold',
+                                counts
+                                  ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                  : 'border-slate-200 bg-slate-50 text-slate-500',
+                              )}
+                              title={counts ? 'This booking counts toward loyalty eligibility' : 'This booking does not count toward loyalty eligibility'}
+                            >
+                              {counts ? 'Yes' : 'No'}
+                            </span>
+                          );
+                        })()}
                       </TableCell>
                       <TableCell className="whitespace-nowrap px-0 py-2 text-sm font-medium">{formatPhone(j.phone)}</TableCell>
                       <TableCell className="px-3 py-2 tabular-nums text-sm font-medium">

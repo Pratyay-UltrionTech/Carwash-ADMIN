@@ -15,7 +15,12 @@ import {
   type MobileManagerJobStatus,
   normalizeMobileManagerJobStatus,
 } from '../../../lib/mobileServicesStore';
-import { canManagerPortalEditBookingJob, todayLocalISO } from '../../../lib/managerPortalUtils';
+import {
+  bookingCountsTowardEligibility,
+  canManagerPortalEditBookingJob,
+  loyaltyEligibleByServiceIdFromBlocks,
+  todayLocalISO,
+} from '../../../lib/managerPortalUtils';
 import { EditMobileBookingDialog } from '../../../components/manager/EditMobileBookingDialog';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
@@ -334,6 +339,11 @@ export default function MobileViewBookingsPage() {
     return map;
   }, [state.vehicleCatalog]);
 
+  const loyaltyEligibleByServiceId = useMemo(
+    () => loyaltyEligibleByServiceIdFromBlocks(state.vehicleCatalog ?? []),
+    [state.vehicleCatalog],
+  );
+
   const filtered = useMemo(() => {
     const nameQ = filterName.trim().toLowerCase();
     const phoneQ = filterPhone.trim().toLowerCase();
@@ -530,6 +540,7 @@ export default function MobileViewBookingsPage() {
                   <col className="w-[6.75rem]" />
                   <col className="w-[6.5rem]" />
                   <col className="w-[7rem]" />
+                  <col className="w-[6.5rem]" />
                   <col className="w-[6.25rem]" />
                   <col className="w-[4.5rem]" />
                   <col className="w-[5.5rem]" />
@@ -542,6 +553,7 @@ export default function MobileViewBookingsPage() {
                     <TableHead className="h-11 px-2 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Customer</TableHead>
                     <TableHead className="h-11 whitespace-nowrap px-2 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Date &amp; Time</TableHead>
                     <TableHead className="h-11 px-2 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Service</TableHead>
+                    <TableHead className="h-11 w-[6.5rem] px-2 py-3 text-xs font-semibold uppercase tracking-wider leading-tight text-slate-500">Counted towards eligibility</TableHead>
                     <TableHead className="h-11 whitespace-nowrap px-2 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Phone</TableHead>
                     <TableHead className="h-11 w-[95px] px-3 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Driver</TableHead>
                     <TableHead className="h-11 w-[90px] whitespace-nowrap px-3 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Booking date</TableHead>
@@ -600,6 +612,26 @@ export default function MobileViewBookingsPage() {
                           >
                             {serviceLine}
                           </p>
+                        </TableCell>
+
+                        {/* Counted towards eligibility */}
+                        <TableCell className="px-2 py-3 text-center">
+                          {(() => {
+                            const counts = bookingCountsTowardEligibility(j, loyaltyEligibleByServiceId);
+                            return (
+                              <span
+                                className={cn(
+                                  'inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold',
+                                  counts
+                                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                    : 'border-slate-200 bg-slate-50 text-slate-500',
+                                )}
+                                title={counts ? 'This booking counts toward loyalty eligibility' : 'This booking does not count toward loyalty eligibility'}
+                              >
+                                {counts ? 'Yes' : 'No'}
+                              </span>
+                            );
+                          })()}
                         </TableCell>
 
                         {/* Phone */}
