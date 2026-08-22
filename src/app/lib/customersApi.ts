@@ -63,6 +63,8 @@ export interface CustomerBooking {
   customer_id?: string | null;
   /** Phone number — used to derive the guest booking ID suffix when customer_id is absent. */
   phone?: string;
+  /** True when this booking counts toward loyalty / free-wash eligibility. */
+  counted_towards_eligibility?: boolean;
 }
 
 export type CustomerSortBy =

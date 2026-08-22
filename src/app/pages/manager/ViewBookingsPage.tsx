@@ -356,18 +356,31 @@ export default function ViewBookingsPage() {
             <p className="px-6 py-10 text-center text-sm text-muted-foreground">No bookings match.</p>
           ) : (
             <div className="max-h-[min(72vh,720px)] overflow-auto">
-              <table className="w-full table-fixed caption-bottom border-collapse text-sm">
+              <table className="w-full min-w-[1160px] table-fixed caption-bottom border-collapse text-sm">
+                <colgroup>
+                  <col className="w-[8.25rem]" />
+                  <col className="w-[7.5rem]" />
+                  <col className="w-[7.5rem]" />
+                  <col className="w-[9.5rem]" />
+                  <col className="w-[8.75rem]" />
+                  <col className="w-[8.25rem]" />
+                  <col className="w-[6.5rem]" />
+                  <col className="w-[7.5rem]" />
+                  <col className="w-[7.25rem]" />
+                </colgroup>
                 <TableHeader className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50/98 shadow-[0_1px_0_0_rgba(15,23,42,0.06)] backdrop-blur-sm [&_tr]:border-b">
                   <TableRow className="border-0 hover:bg-transparent">
-                    <TableHead className="h-11 w-[130px] px-3 py-3">Booking ID</TableHead>
-                    <TableHead className="h-11 w-[120px] px-3 py-3">Customer</TableHead>
-                    <TableHead className="h-11 w-[120px] px-3 py-3">Date & time</TableHead>
-                    <TableHead className="h-11 w-[140px] px-3 py-3 pr-0">Service</TableHead>
-                    <TableHead className="h-11 w-[7.5rem] px-2 py-3 leading-tight">Counted towards eligibility</TableHead>
-                    <TableHead className="h-11 w-[125px] px-0 py-3">Phone</TableHead>
-                    <TableHead className="h-11 w-[100px] px-3 py-3">Booking date</TableHead>
-                    <TableHead className="h-11 w-[120px] px-3 py-3 text-center">Status</TableHead>
-                    <TableHead className="h-11 w-[115px] px-1 py-3 text-right">Actions</TableHead>
+                    <TableHead className="h-12 px-3 py-2">Booking ID</TableHead>
+                    <TableHead className="h-12 px-3 py-2">Customer</TableHead>
+                    <TableHead className="h-12 px-3 py-2">Date & time</TableHead>
+                    <TableHead className="h-12 px-3 py-2">Service</TableHead>
+                    <TableHead className="h-12 overflow-hidden whitespace-normal px-2 py-2 text-center leading-tight">
+                      Counted towards<br />eligibility
+                    </TableHead>
+                    <TableHead className="h-12 px-2 py-2">Phone</TableHead>
+                    <TableHead className="h-12 px-3 py-2">Booking date</TableHead>
+                    <TableHead className="h-12 px-3 py-2 text-center">Status</TableHead>
+                    <TableHead className="h-12 px-1 py-2 text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -403,7 +416,7 @@ export default function ViewBookingsPage() {
                           <span className="text-xs">{j.startTime}–{j.endTime}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="px-3 py-2 pr-0 text-sm font-medium leading-snug [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] overflow-hidden">
+                      <TableCell className="px-3 py-2 text-sm font-medium leading-snug [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] overflow-hidden">
                         {j.serviceSummary
                           ?.replace(/\s*\(.*?\)\s*$/, '')
                           .replace(/\s*\$\d+(\.\d+)?\s*/g, ' ')
@@ -430,7 +443,7 @@ export default function ViewBookingsPage() {
                           );
                         })()}
                       </TableCell>
-                      <TableCell className="whitespace-nowrap px-0 py-2 text-sm font-medium">{formatPhone(j.phone)}</TableCell>
+                      <TableCell className="whitespace-nowrap px-2 py-2 text-sm font-medium">{formatPhone(j.phone)}</TableCell>
                       <TableCell className="px-3 py-2 tabular-nums text-sm font-medium">
                         {j.createdAt
                           ? format(new Date(j.createdAt), 'd MMM yy')

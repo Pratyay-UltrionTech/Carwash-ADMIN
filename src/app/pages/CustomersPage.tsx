@@ -185,6 +185,17 @@ function BookingHistoryModal({ customer, onClose }: BookingHistoryModalProps) {
                         }`}>
                           {b.source === 'branch' ? 'Branch' : 'Mobile'}
                         </span>
+                        {b.counted_towards_eligibility && (
+                          <span
+                            className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"
+                            title="Counts towards eligibility"
+                            aria-label="Counts towards eligibility"
+                          >
+                            <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 21h8m-4-4v4M7 4h10v4a5 5 0 01-10 0V4zm0 2H4v1a4 4 0 004 4m9-5h3v1a4 4 0 01-4 4" />
+                            </svg>
+                          </span>
+                        )}
                       </div>
                       <StatusBadge status={b.status} />
                     </div>
@@ -501,28 +512,30 @@ export default function CustomersPage() {
 
       {/* Table */}
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-        <table className="w-full min-w-[980px] table-fixed text-sm">
+        <table className="w-full min-w-[1180px] table-fixed text-sm">
           <colgroup>
-            <col className="w-[5.5rem]" />
+            <col className="w-[6rem]" />
             <col className="w-[11rem]" />
-            <col className="w-[12.5rem]" />
-            <col className="w-[8.5rem]" />
-            <col />
-            <col className="w-[5.25rem]" />
-            <col className="w-[6.75rem]" />
-            <col className="w-[6.5rem]" />
-            <col className="w-[5.5rem]" />
+            <col className="w-[13rem]" />
+            <col className="w-[8.75rem]" />
+            <col className="w-[9rem]" />
+            <col className="w-[6.25rem]" />
+            <col className="w-[7.25rem]" />
+            <col className="w-[7.5rem]" />
+            <col className="w-[5.75rem]" />
           </colgroup>
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50">
               <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Type</th>
               <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Name</th>
-              <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 hidden md:table-cell">Email</th>
-              <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 hidden sm:table-cell">Phone</th>
-              <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 hidden lg:table-cell">Vehicles</th>
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Email</th>
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Phone</th>
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Vehicles</th>
               <th className="px-3 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500">Bookings</th>
-              <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 hidden lg:table-cell whitespace-nowrap">Last booking</th>
-              <th className="px-3 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500 leading-tight">Free wash eligible</th>
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap">Last booking</th>
+              <th className="overflow-hidden px-2 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider leading-tight text-slate-500">
+                Free wash<br />eligible
+              </th>
               <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-500">History</th>
             </tr>
           </thead>
@@ -580,7 +593,7 @@ export default function CustomersPage() {
                 </td>
 
                 {/* Email */}
-                <td className="px-3 py-2.5 text-slate-600 hidden md:table-cell align-middle min-w-0">
+                <td className="px-3 py-2.5 text-slate-600 align-middle min-w-0">
                   {c.email ? (
                     <span className="block truncate" title={c.email}>{c.email}</span>
                   ) : (
@@ -589,12 +602,12 @@ export default function CustomersPage() {
                 </td>
 
                 {/* Phone */}
-                <td className="px-3 py-2.5 text-slate-600 hidden sm:table-cell align-middle whitespace-nowrap">
+                <td className="px-3 py-2.5 text-slate-600 align-middle whitespace-nowrap">
                   {c.phone ? formatPhone(c.phone) : <span className="text-slate-300">—</span>}
                 </td>
 
                 {/* Vehicles */}
-                <td className="px-3 py-2.5 hidden lg:table-cell align-middle min-w-0">
+                <td className="px-3 py-2.5 align-middle min-w-0">
                   {c.vehicles.length > 0 ? (
                     <div className="flex flex-wrap gap-1">
                       {c.vehicles.slice(0, 3).map((v) => (
@@ -624,7 +637,7 @@ export default function CustomersPage() {
                 </td>
 
                 {/* Last booking */}
-                <td className="px-3 py-2.5 text-[12px] text-slate-500 hidden lg:table-cell align-middle whitespace-nowrap tabular-nums">
+                <td className="px-3 py-2.5 text-[12px] text-slate-500 align-middle whitespace-nowrap tabular-nums">
                   {fmtDateTable(c.last_booking_date)}
                 </td>
 

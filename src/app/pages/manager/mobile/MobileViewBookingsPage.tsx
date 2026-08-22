@@ -534,27 +534,29 @@ export default function MobileViewBookingsPage() {
             <p className="px-6 py-10 text-center text-sm text-muted-foreground">No bookings match.</p>
           ) : (
             <div className="max-h-[min(72vh,720px)] overflow-auto">
-              <table className="w-full table-fixed caption-bottom border-collapse text-sm">
+              <table className="w-full min-w-[1220px] table-fixed caption-bottom border-collapse text-sm">
                 <colgroup>
-                  <col className="w-[5.5rem]" />
-                  <col className="w-[6.75rem]" />
                   <col className="w-[6.5rem]" />
                   <col className="w-[7rem]" />
-                  <col className="w-[6.5rem]" />
-                  <col className="w-[6.25rem]" />
-                  <col className="w-[4.5rem]" />
+                  <col className="w-[6.75rem]" />
+                  <col className="w-[8rem]" />
+                  <col className="w-[8.75rem]" />
+                  <col className="w-[8.25rem]" />
                   <col className="w-[5.5rem]" />
+                  <col className="w-[6rem]" />
                   <col className="w-[6.25rem]" />
-                  <col className="w-[4.75rem]" />
+                  <col className="w-[5rem]" />
                 </colgroup>
                 <TableHeader className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50/98 shadow-[0_1px_0_0_rgba(15,23,42,0.06)] backdrop-blur-sm [&_tr]:border-b">
                   <TableRow className="border-0 hover:bg-transparent">
-                    <TableHead className="h-11 whitespace-nowrap px-2 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Booking ID</TableHead>
-                    <TableHead className="h-11 px-2 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Customer</TableHead>
-                    <TableHead className="h-11 whitespace-nowrap px-2 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Date &amp; Time</TableHead>
-                    <TableHead className="h-11 px-2 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Service</TableHead>
-                    <TableHead className="h-11 w-[6.5rem] px-2 py-3 text-xs font-semibold uppercase tracking-wider leading-tight text-slate-500">Counted towards eligibility</TableHead>
-                    <TableHead className="h-11 whitespace-nowrap px-2 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Phone</TableHead>
+                    <TableHead className="h-12 whitespace-nowrap px-2 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500">Booking ID</TableHead>
+                    <TableHead className="h-12 px-2 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500">Customer</TableHead>
+                    <TableHead className="h-12 whitespace-nowrap px-2 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500">Date &amp; Time</TableHead>
+                    <TableHead className="h-12 px-2 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500">Service</TableHead>
+                    <TableHead className="h-12 overflow-hidden whitespace-normal px-2 py-2 text-center text-xs font-semibold uppercase tracking-wider leading-tight text-slate-500">
+                      Counted towards<br />eligibility
+                    </TableHead>
+                    <TableHead className="h-12 whitespace-nowrap px-2 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500">Phone</TableHead>
                     <TableHead className="h-11 w-[95px] px-3 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Driver</TableHead>
                     <TableHead className="h-11 w-[90px] whitespace-nowrap px-3 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Booking date</TableHead>
                     <TableHead className="h-11 w-[6.25rem] whitespace-nowrap px-2 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Status</TableHead>
